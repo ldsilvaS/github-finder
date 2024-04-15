@@ -1,37 +1,64 @@
-import { useState } from "react"
+import { useState, KeyboardEvent } from "react"
 
 
 import { Container, TextContainer, InputContainer, ResultContainer, FormUser } from "./style"
 import { UserProps } from "../../types/user"
+import toast, { Toaster } from 'react-hot-toast';
 
 import { LuUsers2 } from "react-icons/lu";
 import { GoOrganization } from "react-icons/go";
 import { IoLocationOutline } from "react-icons/io5";
 
 
-const Home = () => {
+const Home = () => {   
 
-    const [userName, setUserName] = useState("")
+    const [userName, setUserName] = useState("")    // Variável que guardo a digitação do usuário
 
-    const [user, setUser] = useState<UserProps | null>(null);
+    const [user, setUser] = useState<UserProps | null>(null);   // Setando a variável que vai receber o response. 
 
-    const loadUser = async (userName: string) => {
-        const response = await fetch(`https://api.github.com/users/${userName}`)
+    const loadUser = async (userName: string) => {     // Função que pega o response da API
+        
+        const response = await fetch(`https://api.github.com/users/${userName}`)  // Pegando o resultado da API, passando como parâmetro o userName.      
 
-        const data = await response.json()
+        const data = await response.json()  // Colocando o response em forma de json dentro do data.
 
-        console.log(data);
+        if(!data.message){    // Se não encontrar nenhum erro.
+            const {name, login, avatar_url, company, location, followers, following, html_url} = data    // Pegando apenas esses valores do data.
 
-        const {name, login, avatar_url, company, location, followers, following, html_url} = data
+            const userData: UserProps = {
+                name, login, avatar_url, company, location, followers, following, html_url    // Guardando esses valores dentro da variável userData.
+            };
+            
+            setUser(userData)    // Setando o usuário
 
-        const userData: UserProps = {
-            name, login, avatar_url, company, location, followers, following, html_url
-        };
+            setTimeout(() => {   // Limpando o input
+                setUserName("");
+            }, 2000)
+            
+        }else {      // Se encontrar error
+            toast.error('Usuário não encontrado!', {
+                duration: 3000,
+                position: 'top-center',
+            });
 
-        setUser(userData)
+            setUser(null);
 
+            console.log("Usuário não encontrado")
+
+            setTimeout(() => {
+                setUserName("");
+            }, 2000)
+        }
         
     }
+
+    const resultEnter = (e: KeyboardEvent) => {  // Função para fazer a ação também com o Enter
+        if(e.key === 'Enter'){
+            loadUser(userName);
+        }
+    }
+
+    
 
     const urlImage = user?.avatar_url;
 
@@ -56,6 +83,7 @@ const Home = () => {
                         placeholder="GitHub Name"
                         value={userName}
                         onChange={(e) => setUserName(e.target.value)}
+                        onKeyDown={resultEnter}
                     />
                     <button className="button" onClick={() => loadUser(userName)}>
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" className="w-6 h-6">
@@ -64,6 +92,7 @@ const Home = () => {
                         <div className="text">Search</div>
                     </button>
                 </InputContainer>
+                <Toaster/>
             </Container>
             {!user ? "" : 
                 <ResultContainer>
