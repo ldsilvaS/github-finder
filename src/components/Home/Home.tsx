@@ -8,7 +8,6 @@ import toast, { Toaster } from 'react-hot-toast';
 import { LuUsers2 } from "react-icons/lu";
 import { GoOrganization } from "react-icons/go";
 import { IoLocationOutline } from "react-icons/io5";
-import { RepoProps } from "../../types/repos";
 
 
 const Home = () => {   
