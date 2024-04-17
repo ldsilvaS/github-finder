@@ -8,19 +8,30 @@ import toast, { Toaster } from 'react-hot-toast';
 import { LuUsers2 } from "react-icons/lu";
 import { GoOrganization } from "react-icons/go";
 import { IoLocationOutline } from "react-icons/io5";
+import { RepoProps } from "../../types/repos";
 
 
 const Home = () => {   
 
     const [userName, setUserName] = useState("")    // Variável que guardo a digitação do usuário
 
-    const [user, setUser] = useState<UserProps | null>(null);   // Setando a variável que vai receber o response. 
+    const [user, setUser] = useState<UserProps | null>(null);   // Setando a variável que vai receber o response.
+
+    const [userRepo, setUserRepo] = useState([]);
 
     const loadUser = async (userName: string) => {     // Função que pega o response da API
         
-        const response = await fetch(`https://api.github.com/users/${userName}`)  // Pegando o resultado da API, passando como parâmetro o userName.      
-
+        const response = await fetch(`https://api.github.com/users/${userName}`)  // Pegando o resultado da API, passando como parâmetro o userName.
+        
+        const response_repos = await fetch(`https://api.github.com/users/${userName}/repos`)
+        
         const data = await response.json()  // Colocando o response em forma de json dentro do data.
+
+        const data_repos = await response_repos.json()
+
+        //console.log(data_repos)
+
+        //console.log(data);
 
         if(!data.message){    // Se não encontrar nenhum erro.
             const {name, login, avatar_url, company, location, followers, following, html_url} = data    // Pegando apenas esses valores do data.
@@ -30,6 +41,10 @@ const Home = () => {
             };
             
             setUser(userData)    // Setando o usuário
+
+            setUserRepo(data_repos);
+
+            console.log(userRepo);
 
             setTimeout(() => {   // Limpando o input
                 setUserName("");
